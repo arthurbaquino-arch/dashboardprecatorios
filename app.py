@@ -76,7 +76,6 @@ if df is not None:
     total_geral = total_por_ente['SALDO ATUALIZADO'].sum()
     total_por_ente['% Participação'] = (total_por_ente['SALDO ATUALIZADO'] / total_geral) * 100
     
-    # Agrupar entes com menos de 2% em "Outros"
     total_por_ente['ENTE'] = total_por_ente.apply(
         lambda row: row['ENTE'] if row['% Participação'] >= 2 else 'Outros', axis=1
     )
@@ -100,10 +99,9 @@ if df is not None:
                               title=f'Evolução da Dívida de {ente_selecionado} por Ano')
         st.plotly_chart(fig_evolucao, use_container_width=True)
 
-    # Ranking TOP 10 Devedores
+    # Ranking TOP 10 Maiores Devedores
     st.subheader("TOP 10 Maiores Devedores")
     top_10 = df.groupby('ENTE')['SALDO ATUALIZADO'].sum().sort_values(ascending=False).head(10).reset_index()
     top_10.index = top_10.index + 1  # Começa a numeração em 1
-    top_10.columns = ['Rank', 'ENTE', 'SALDO ATUALIZADO']
     top_10['SALDO ATUALIZADO'] = top_10['SALDO ATUALIZADO'].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
     st.dataframe(top_10, use_container_width=True)
