@@ -16,28 +16,15 @@ st.title("Dashboard de Dívidas de Precatórios do TJPE")
 @st.cache_data
 def load_data(file_path):
     try:
-        # Carrega a planilha Excel
-        df = pd.read_excel(file_path)
+        # Carrega a planilha Excel, usando a segunda linha (índice 1) como cabeçalho
+        df = pd.read_excel(file_path, header=1)
     except FileNotFoundError:
         st.error(f"Erro: Arquivo '{file_path}' não encontrado. Verifique se o nome e o caminho estão corretos.")
         return None
 
-    # Procura a coluna de saldo de forma flexível
-    saldo_col = None
-    for col in df.columns:
-        if re.search(r'saldo', col, re.IGNORECASE):
-            saldo_col = col
-            break
-            
-    if saldo_col is None:
-        st.error(f"Erro: Não foi encontrada uma coluna de saldo na planilha. As colunas disponíveis são: {list(df.columns)}")
-        return None
-
-    # Renomeia a coluna encontrada para padronizar
-    df = df.rename(columns={saldo_col: 'SALDO ATUALIZADO'})
-    
     # Garante que 'SALDO ATUALIZADO' é um número
     df['SALDO ATUALIZADO'] = pd.to_numeric(df['SALDO ATUALIZADO'], errors='coerce')
+    
     return df
 
 # NOME EXATO DO SEU ARQUIVO .xlsx
@@ -63,6 +50,7 @@ if df is not None:
     st.subheader("Informações Detalhadas do Processo")
     processo_selecionado = st.sidebar.text_input("Buscar por Processo (Digite o nº):")
     if processo_selecionado:
+        # A busca agora usa .astype(str) para garantir que funciona com números ou texto
         processo_info = df[df['PROCESSO'].astype(str).str.contains(processo_selecionado, case=False, na=False)]
         if not processo_info.empty:
             st.write(processo_info[['ENTE', 'PROCESSO', 'ORÇAMENTO', 'SALDO ATUALIZADO']].iloc[0])
