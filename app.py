@@ -20,8 +20,8 @@ def load_data(file_path):
     df['SALDO ATUALIZADO'] = pd.to_numeric(df['SALDO ATUALIZADO'], errors='coerce')
     return df
 
-# NOME DO SEU ARQUIVO .xlsx (MANTENHA EXATAMENTE ASSIM)
-file_name = 'Estudo da dívia em Agosto-25.xlsx - TJPE REPORTS - CPF_CNPJ.xlsx'
+# NOME EXATO DO SEU ARQUIVO .xlsx (CORRIGIDO)
+file_name = 'Estudo da dívia em Agosto-25.xlsx'
 df = load_data(file_name)
 
 # --- Filtros na Barra Lateral ---
