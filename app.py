@@ -92,16 +92,17 @@ if df is not None:
                       title='Proporção da Dívida por Situação (%)')
     st.plotly_chart(fig_situacao, use_container_width=True)
 
-    # Gráfico de Evolução da Dívida do Ente Selecionado
-    if ente_selecionado != 'Todos':
-        evolucao_divida = df[df['ENTE'] == ente_selecionado].groupby('ORÇAMENTO')['SALDO ATUALIZADO'].sum().reset_index()
-        fig_evolucao = px.line(evolucao_divida, x='ORÇAMENTO', y='SALDO ATUALIZADO',
-                              title=f'Evolução da Dívida de {ente_selecionado} por Ano')
-        st.plotly_chart(fig_evolucao, use_container_width=True)
+    # Gráfico de Evolução da Dívida por Orçamento
+    st.subheader("Evolução da Dívida por Orçamento")
+    evolucao_divida_orcamento = df_filtrado.groupby('ORÇAMENTO')['SALDO ATUALIZADO'].sum().reset_index()
+    fig_evolucao_orcamento = px.line(evolucao_divida_orcamento, x='ORÇAMENTO', y='SALDO ATUALIZADO',
+                          title='Evolução da Dívida por Orçamento')
+    st.plotly_chart(fig_evolucao_orcamento, use_container_width=True)
+
 
     # Ranking TOP 10 Maiores Devedores
     st.subheader("TOP 10 Maiores Devedores")
     top_10 = df.groupby('ENTE')['SALDO ATUALIZADO'].sum().sort_values(ascending=False).head(10).reset_index()
-    top_10.index = top_10.index + 1  # Começa a numeração em 1
+    top_10.index = top_10.index + 1
     top_10['SALDO ATUALIZADO'] = top_10['SALDO ATUALIZADO'].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
     st.dataframe(top_10, use_container_width=True)
