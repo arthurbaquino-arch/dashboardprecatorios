@@ -66,4 +66,15 @@ if ente_selecionado != 'Todos':
     evolucao_divida = df[df['ENTE'] == ente_selecionado].groupby('ORÇAMENTO')['SALDO ATUALIZADO'].sum().reset_index()
     fig_evolucao = px.line(evolucao_divida, x='ORÇAMENTO', y='SALDO ATUALIZADO',
                           title=f'Evolução da Dívida de {ente_selecionado} por Ano')
-    st.plotly_chart(fig_evoluc
+    st.plotly_chart(fig_evolucao)
+
+# Gráfico de Proporção da Dívida por Situação
+proporcao_situacao = df_filtrado.groupby('SITUAÇÃO')['SALDO ATUALIZADO'].sum().reset_index()
+fig_situacao = px.bar(proporcao_situacao, x='SITUAÇÃO', y='SALDO ATUALIZADO',
+                      title='Proporção da Dívida por Situação')
+st.plotly_chart(fig_situacao)
+
+# Ranking TOP 10 Devedores
+st.subheader("TOP 10 Maiores Devedores")
+top_10 = df.groupby('ENTE')['SALDO ATUALIZADO'].sum().sort_values(ascending=False).head(10).reset_index()
+st.dataframe(top_10, use_container_width=True)
