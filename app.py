@@ -7,7 +7,7 @@ import re
 st.set_page_config(
     page_title="Dashboard de Dívidas de Precatórios do TJPE",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed" # Barra lateral agora está colapsada por padrão
 )
 st.title("Dashboard de Dívidas de Precatórios do TJPE")
 
@@ -32,30 +32,37 @@ file_name = 'Estudo da dívia em Agosto-25.xlsx'
 df = load_data(file_name)
 
 if df is not None:
-    # --- Filtros na Barra Lateral ---
-    st.sidebar.header("Filtros Principais")
-    ente_selecionado = st.sidebar.selectbox("Selecione o Ente Devedor", ['Todos'] + sorted(df['ENTE'].unique()))
-    orcamento_selecionado = st.sidebar.selectbox("Selecione o Orçamento", ['Todos'] + sorted(df['ORÇAMENTO'].unique()))
-    situacao_selecionada = st.sidebar.selectbox("Selecione a Situação", ['Todos'] + df['SITUAÇÃO'].unique())
-
+    # --- Filtros no Painel Principal ---
+    st.subheader("Filtros")
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        # Ordena a lista de Entes em ordem alfabética
+        ente_selecionado = st.selectbox("Selecione o Ente Devedor", ['Todos'] + sorted(df['ENTE'].unique()))
+    with col2:
+        # Ordena a lista de Orçamentos
+        orcamento_selecionado = st.selectbox("Selecione o Orçamento", ['Todos'] + sorted(df['ORÇAMENTO'].unique()))
+    with col3:
+        # Ordena a lista de Situações
+        situacao_selecionada = st.selectbox("Selecione a Situação", ['Todos'] + sorted(df['SITUAÇÃO'].unique()))
+    with col4:
+        processo_selecionado = st.text_input("Buscar por Processo (Digite o nº):")
+    with col5:
+        cpf_cnpj_selecionado = st.text_input("Buscar por CPF/CNPJ:")
+    
     df_filtrado = df.copy()
+    
     if ente_selecionado != 'Todos':
         df_filtrado = df_filtrado[df_filtrado['ENTE'] == ente_selecionado]
     if orcamento_selecionado != 'Todos':
         df_filtrado = df_filtrado[df_filtrado['ORÇAMENTO'] == orcamento_selecionado]
     if situacao_selecionada != 'Todos':
         df_filtrado = df_filtrado[df_filtrado['SITUAÇÃO'] == situacao_selecionada]
-
-    # --- Área de Destaque para Processo (Busca) ---
-    st.subheader("Informações Detalhadas do Processo")
-    processo_selecionado = st.sidebar.text_input("Buscar por Processo (Digite o nº):")
     if processo_selecionado:
-        # A busca agora usa .astype(str) para garantir que funciona com números ou texto
-        processo_info = df[df['PROCESSO'].astype(str).str.contains(processo_selecionado, case=False, na=False)]
-        if not processo_info.empty:
-            st.write(processo_info[['ENTE', 'PROCESSO', 'ORÇAMENTO', 'SALDO ATUALIZADO']].iloc[0])
-        else:
-            st.write("Nenhum processo encontrado com esse número.")
+        df_filtrado = df_filtrado[df_filtrado['PROCESSO'].astype(str).str.contains(processo_selecionado, case=False, na=False)]
+    if cpf_cnpj_selecionado:
+        df_filtrado = df_filtrado[df_filtrado['CPF/CNPJ'].astype(str).str.contains(cpf_cnpj_selecionado, case=False, na=False)]
+
 
     # --- Widgets e Gráficos Principais ---
     st.subheader("Análises da Dívida")
